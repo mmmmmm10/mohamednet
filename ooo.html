@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Web Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQC-juf-hHxMKbIvCWq6NP5hJo9j48O4tH_5w&s');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            margin-top: 50px;
+            position: relative; /* Position relative for footer positioning */
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ddd;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #fff;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px; /* Space between the button and the footer */
+            color: #ddd;
+            font-size: 18px;
+            background-color: rgba(0, 0, 0, 0.5); /* Background with black transparency */
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .footer a {
+            color: #00bfff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>2 HOURS Etislat</h1>
+        <label for="number">Enter Your Number:</label>
+        <input type="text" id="number" placeholder="Enter your phone number">
+        
+        <label for="password">Enter Your Password:</label>
+        <input type="password" id="password" placeholder="Enter your password">
+        
+        <label for="email">Enter Your Email:</label>
+        <input type="text" id="email" placeholder="Enter your email address">
+        
+        <button onclick="submitForm()">Submit</button>
+        
+        <div id="output"></div>
+        <div class="loading" id="loading">Loading...</div>
+
+        <div class="footer">
+            <p>Join my Telegram channel: <a href="https://t.me/+g0drSYmJYyU5ZTk0" target="_blank">Click here</a></p>
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            const number = document.getElementById('number').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+
+            const numberRegex = /^\d{10,15}$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!numberRegex.test(number)) {
+                alert("Please enter a valid phone number.");
+                return false;
+            }
+
+            if (!emailRegex.test(email)) {
+                alert("Please enter a valid email address.");
+                return false;
+            }
+
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return false;
+            }
+
+            return true;
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function displayMessage(type, message) {
+            const output = document.getElementById('output');
+            output.style.color = type === 'success' ? 'green' : 'red';
+            output.innerHTML = message;
+        }
+
+        function submitForm() {
+            if (!validateForm()) {
+                return;
+            }
+
+            showLoading();
+
+            const number = document.getElementById('number').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                console.log('Request timed out');
+                controller.abort();
+            }, 10000); // 10 seconds timeout
+
+            const headers = {
+                'Content-Type': 'application/xml',
+                'Authorization': 'Basic ' + btoa(email + ':' + password),
+            };
+
+            const datalog = `<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+                <loginRequest>
+                    <deviceId></deviceId>
+                    <firstLoginAttempt>true</firstLoginAttempt>
+                    <modelType></modelType>
+                    <osVersion></osVersion>
+                    <platform>Android</platform>
+                    <udid></udid>
+                </loginRequest>`;
+
+            fetch("https://mab.etisalat.com.eg:11003/Saytar/rest/authentication/loginWithPlan", {
+                method: 'POST',
+                headers: headers,
+                body: datalog,
+                signal: controller.signal
+            })
+            .then(response => {
+                clearTimeout(timeoutId);
+                hideLoading();
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then(errorText => {
+                        throw new Error(`Network response was not ok: ${errorText}`);
+                    });
+                }
+            })
+            .then(data => {
+                console.log('Data received:', data);
+                if (data.includes("true")) {
+                    displayMessage('success', "????? You now have 2 hours of social ?????");
+                } else {
+                    displayMessage('error', "The number or password is incorrect.");
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error("Error:", error);
+                if (error.name === 'AbortError') {
+                    displayMessage('error', "Request timed out, please try again.");
+                } else {
+                    displayMessage('error', `An error occurred: ${error.message}`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
